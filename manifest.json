@@ -1,16 +1,52 @@
 {
-  "name": "Dashboard Apps Script",
-  "short_name": "Dashboard",
-  "description": "Aplikasi untuk membuka Dashboard Google Apps Script",
-  "start_url": ".",
+  "name": "Monitoring Absensi Babinsa",
+  "short_name": "Babinsa Monitor",
+  "description": "Sistem Monitoring Absensi Dukops Babinsa Koramil",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4285f4",
+  "background_color": "#2e7d32",
+  "theme_color": "#2e7d32",
   "orientation": "portrait",
   "icons": [
     {
+      "src": "icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
       "src": "icon-192.png",
       "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-384.png",
+      "sizes": "384x384",
       "type": "image/png",
       "purpose": "any maskable"
     },
@@ -19,6 +55,37 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Home",
+      "description": "Buka dashboard utama",
+      "url": "/",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Kirim Laporan",
+      "short_name": "Report",
+      "description": "Kirim laporan ke Telegram",
+      "url": "/?action=telegram",
+      "icons": [{ "src": "telegram-icon.png", "sizes": "96x96" }]
     }
   ]
 }
