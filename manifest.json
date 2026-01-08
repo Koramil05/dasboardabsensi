@@ -1,7 +1,7 @@
 {
   "name": "Monitoring Absensi Babinsa",
   "short_name": "Babinsa Monitor",
-  "description": "Sistem Monitoring Absensi Dukops Babinsa Koramil",
+  "description": "Sistem Monitoring Absensi Dukops Babinsa - Real Data",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#2e7d32",
@@ -57,35 +57,14 @@
       "purpose": "any maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "screenshot-mobile.png",
-      "sizes": "720x1280",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "screenshot-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ],
   "categories": ["business", "productivity"],
   "shortcuts": [
     {
       "name": "Dashboard",
       "short_name": "Home",
-      "description": "Buka dashboard utama",
+      "description": "Buka dashboard monitoring",
       "url": "/",
       "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Kirim Laporan",
-      "short_name": "Report",
-      "description": "Kirim laporan ke Telegram",
-      "url": "/?action=telegram",
-      "icons": [{ "src": "telegram-icon.png", "sizes": "96x96" }]
     }
   ]
 }

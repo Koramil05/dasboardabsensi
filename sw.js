@@ -1,8 +1,8 @@
 // Service Worker untuk PWA
-const CACHE_NAME = 'babinsa-monitoring-v1.0';
-const OFFLINE_URL = '/offline.html';
+const CACHE_NAME = 'babinsa-monitoring-v2.0';
+const APP_SHELL_CACHE = 'babinsa-app-shell-v2.0';
 
-// Assets to cache on install
+// Assets to cache immediately
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -13,20 +13,22 @@ const PRECACHE_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap'
 ];
 
-// Install event - cache assets
+// Install event - cache app shell
 self.addEventListener('install', event => {
   console.log('[Service Worker] Installing...');
   
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[Service Worker] Caching app shell');
-        return cache.addAll(PRECACHE_ASSETS);
-      })
-      .then(() => {
-        console.log('[Service Worker] Install completed');
-        return self.skipWaiting();
-      })
+    Promise.all([
+      // Cache app shell
+      caches.open(APP_SHELL_CACHE)
+        .then(cache => {
+          console.log('[Service Worker] Caching app shell');
+          return cache.addAll(PRECACHE_ASSETS);
+        }),
+      
+      // Skip waiting
+      self.skipWaiting()
+    ])
   );
 });
 
@@ -35,75 +37,140 @@ self.addEventListener('activate', event => {
   console.log('[Service Worker] Activating...');
   
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      console.log('[Service Worker] Activation completed');
-      return self.clients.claim();
-    })
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME && cacheName !== APP_SHELL_CACHE) {
+              console.log('[Service Worker] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      
+      // Claim clients
+      self.clients.claim()
+    ])
   );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network first, then cache
 self.addEventListener('fetch', event => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
+  // Skip non-GET requests and chrome-extension requests
+  if (event.request.method !== 'GET' || 
+      event.request.url.startsWith('chrome-extension://')) {
+    return;
+  }
   
-  // Skip chrome-extension requests
-  if (event.request.url.startsWith('chrome-extension://')) return;
-  
-  // For same-origin requests, try cache first
+  // For same-origin requests
   if (event.request.url.startsWith(self.location.origin)) {
     event.respondWith(
-      caches.match(event.request)
-        .then(cachedResponse => {
-          if (cachedResponse) {
-            console.log('[Service Worker] Serving from cache:', event.request.url);
-            return cachedResponse;
-          }
-          
-          return fetch(event.request)
-            .then(response => {
-              // Don't cache if not a valid response
-              if (!response || response.status !== 200 || response.type !== 'basic') {
-                return response;
-              }
-              
-              // Clone the response
-              const responseToCache = response.clone();
-              
-              caches.open(CACHE_NAME)
-                .then(cache => {
-                  console.log('[Service Worker] Caching new resource:', event.request.url);
-                  cache.put(event.request, responseToCache);
-                });
-              
-              return response;
-            })
-            .catch(error => {
-              console.error('[Service Worker] Fetch failed:', error);
-              
-              // For navigation requests, return offline page
-              if (event.request.mode === 'navigate') {
-                return caches.match(OFFLINE_URL);
-              }
-              
-              return new Response('Network error occurred', {
-                status: 408,
-                headers: { 'Content-Type': 'text/plain' }
-              });
-            });
-        })
+      networkFirstThenCache(event.request)
+    );
+  } else {
+    // For CDN requests, cache first
+    event.respondWith(
+      cacheFirstThenNetwork(event.request)
     );
   }
 });
+
+// Strategy: Network first, then cache
+async function networkFirstThenCache(request) {
+  try {
+    // Try network first
+    const networkResponse = await fetch(request);
+    
+    // If successful, cache it
+    if (networkResponse && networkResponse.status === 200) {
+      const responseToCache = networkResponse.clone();
+      caches.open(CACHE_NAME)
+        .then(cache => {
+          cache.put(request, responseToCache);
+        });
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    console.log('[Service Worker] Network failed, trying cache:', request.url);
+    
+    // Network failed, try cache
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    // If no cache, return app shell for navigation requests
+    if (request.mode === 'navigate') {
+      return caches.match('./index.html');
+    }
+    
+    // Otherwise return error
+    return new Response('Network error occurred', {
+      status: 408,
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
+}
+
+// Strategy: Cache first, then network (for CDN)
+async function cacheFirstThenNetwork(request) {
+  const cachedResponse = await caches.match(request);
+  if (cachedResponse) {
+    // Update cache in background
+    fetch(request)
+      .then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(request, responseToCache);
+            });
+        }
+      })
+      .catch(() => {
+        // Ignore fetch errors for CDN
+      });
+    
+    return cachedResponse;
+  }
+  
+  // Not in cache, fetch from network
+  return fetch(request);
+}
+
+// Background sync for data refresh
+self.addEventListener('sync', event => {
+  if (event.tag === 'refresh-data') {
+    event.waitUntil(refreshDataInBackground());
+  }
+});
+
+async function refreshDataInBackground() {
+  console.log('[Service Worker] Background sync triggered');
+  
+  try {
+    // You could trigger a data refresh here
+    // For now, just show a notification
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'BACKGROUND_REFRESH',
+        timestamp: new Date().toISOString()
+      });
+    });
+    
+    return self.registration.showNotification('Data diperbarui', {
+      body: 'Data monitoring telah disinkronisasi di background',
+      icon: './icon-192.png',
+      tag: 'data-refresh'
+    });
+  } catch (error) {
+    console.error('[Service Worker] Background sync failed:', error);
+  }
+}
 
 // Handle push notifications
 self.addEventListener('push', event => {
@@ -115,67 +182,34 @@ self.addEventListener('push', event => {
     badge: './icon-96.png',
     vibrate: [200, 100, 200],
     data: {
-      url: data.url || './'
+      url: data.url || './',
+      timestamp: new Date().toISOString()
     }
   };
   
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 // Handle notification click
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   
+  const urlToOpen = event.notification.data.url || './';
+  
   event.waitUntil(
-    clients.matchAll({ type: 'window' })
-      .then(clientList => {
-        for (const client of clientList) {
-          if (client.url === event.notification.data.url && 'focus' in client) {
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(windowClients => {
+        // Check if there's already a window/tab open with the target URL
+        for (const client of windowClients) {
+          if (client.url === urlToOpen && 'focus' in client) {
             return client.focus();
           }
         }
         
+        // If not, open a new window/tab
         if (clients.openWindow) {
-          return clients.openWindow(event.notification.data.url);
+          return clients.openWindow(urlToOpen);
         }
       })
   );
-});
-
-// Handle background sync
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-data') {
-    event.waitUntil(syncData());
-  }
-});
-
-// Function to sync data in background
-function syncData() {
-  return fetch('/api/sync')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Sync failed');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('[Service Worker] Background sync successful');
-      return self.registration.showNotification('Data tersinkronisasi', {
-        body: 'Data monitoring telah diperbarui',
-        icon: './icon-192.png'
-      });
-    })
-    .catch(error => {
-      console.error('[Service Worker] Background sync failed:', error);
-    });
-}
-
-// Handle periodic sync
-self.addEventListener('periodicsync', event => {
-  if (event.tag === 'periodic-sync') {
-    console.log('[Service Worker] Periodic sync triggered');
-    event.waitUntil(syncData());
-  }
 });

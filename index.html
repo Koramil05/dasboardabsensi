@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <title>💚 Monitoring Absensi Babinsa</title>
+    <title>💚 MONITORING ABSENSI BABINSA</title>
     
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
@@ -37,7 +37,7 @@
             --success: #4caf50;
             --warning: #ff9800;
             --danger: #f44336;
-            --dark: #333;
+            --dark: #333333;
             --light: #f8f9fa;
             --gray: #6c757d;
             --border: #dee2e6;
@@ -57,7 +57,7 @@
         
         /* ===== CONTAINER ===== */
         .container {
-            max-width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
             position: relative;
         }
@@ -72,6 +72,7 @@
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
+            text-align: center;
         }
         
         .header::before {
@@ -90,7 +91,6 @@
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 8px;
-            text-align: center;
             letter-spacing: 0.5px;
             position: relative;
             z-index: 2;
@@ -99,7 +99,6 @@
         .app-subtitle {
             font-size: 0.95rem;
             opacity: 0.9;
-            text-align: center;
             position: relative;
             z-index: 2;
         }
@@ -183,12 +182,20 @@
             font-size: 1.8rem;
         }
         
-        .btn-refresh { background: linear-gradient(135deg, var(--secondary) 0%, #1976d2 100%); }
-        .btn-telegram { background: linear-gradient(135deg, #0088cc 0%, #006699 100%); }
-        .btn-whatsapp { background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); }
-        .btn-print { background: linear-gradient(135deg, var(--warning) 0%, #f57c00 100%); }
+        .btn-refresh { 
+            background: linear-gradient(135deg, var(--secondary) 0%, #1976d2 100%); 
+        }
+        .btn-telegram { 
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%); 
+        }
+        .btn-whatsapp { 
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); 
+        }
+        .btn-clear-cache { 
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); 
+        }
         
-        /* ===== CURRENT PERIOD ===== */
+        /* ===== PERIOD INFO ===== */
         .period-card {
             background: white;
             border-radius: var(--radius);
@@ -473,7 +480,7 @@
                 opacity: 0;
             }
             to {
-                transform: translateX(0);
+                transform: translateY(0);
                 opacity: 1;
             }
         }
@@ -481,6 +488,7 @@
         .notification.success { border-color: var(--success); }
         .notification.error { border-color: var(--danger); }
         .notification.info { border-color: var(--secondary); }
+        .notification.warning { border-color: var(--warning); }
         
         /* ===== INSTALL PROMPT ===== */
         .install-prompt {
@@ -488,7 +496,7 @@
             bottom: 20px;
             left: 20px;
             right: 20px;
-            background: linear-gradient(135deg, var(--warning) 0%, #ff9800 100%);
+            background: linear-gradient(135deg, var(--warning) 0%, #f57c00 100%);
             color: white;
             padding: 20px;
             border-radius: var(--radius);
@@ -577,20 +585,20 @@
                 <i class="fas fa-shield-alt"></i> 💚 MONITORING ABSENSI BABINSA 💚
             </h1>
             <p class="app-subtitle">
-                Sistem Informasi Operasional | By: Serka I Nyoman Arta
+                Sistem Informasi Operasional | Real Data dari Google Drive
             </p>
         </div>
         
         <!-- LOADING STATE -->
         <div id="loading" class="loading-container">
             <div class="spinner"></div>
-            <h2 style="color: var(--primary); margin-bottom: 15px;">Memuat Data...</h2>
+            <h2 style="color: var(--primary); margin-bottom: 15px;">MEMUAT DATA REAL...</h2>
             <p id="loadingText" style="color: var(--gray);">
-                Menghubungkan ke sistem monitoring
+                Menghubungkan ke Google Drive & Apps Script...
             </p>
             <div style="margin-top: 30px; padding: 20px; background: rgba(46, 125, 50, 0.05); border-radius: 10px;">
                 <p style="font-size: 0.9rem; color: var(--primary);">
-                    <i class="fas fa-info-circle"></i> Pastikan Anda sudah login Google
+                    <i class="fas fa-info-circle"></i> Mengambil data langsung dari Google Drive Anda
                 </p>
             </div>
         </div>
@@ -599,9 +607,9 @@
         <div id="dashboard" class="dashboard">
             <!-- ACTION BUTTONS -->
             <div class="action-grid">
-                <button class="action-btn btn-refresh" onclick="refreshData()" id="refreshBtn">
+                <button class="action-btn btn-refresh" onclick="refreshData(true)" id="refreshBtn">
                     <i class="fas fa-sync-alt"></i>
-                    <span>Refresh Data</span>
+                    <span>Refresh & Clear Cache</span>
                 </button>
                 
                 <button class="action-btn btn-telegram" onclick="sendTelegramReport()" id="telegramBtn">
@@ -614,9 +622,9 @@
                     <span>Buat Laporan WA</span>
                 </button>
                 
-                <button class="action-btn btn-print" onclick="window.print()">
-                    <i class="fas fa-print"></i>
-                    <span>Print Laporan</span>
+                <button class="action-btn btn-clear-cache" onclick="clearCache()" id="clearBtn">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Clear Cache Manual</span>
                 </button>
             </div>
             
@@ -626,7 +634,10 @@
                     ABSENSI DUKOPS BABINSA
                 </div>
                 <div class="period-info" id="periodInfo">
-                    Loading...
+                    Loading data real dari Drive...
+                </div>
+                <div id="cacheStatus" style="margin-top: 10px; font-size: 0.9rem; color: var(--gray);">
+                    <i class="fas fa-database"></i> Status cache: loading...
                 </div>
             </div>
             
@@ -667,7 +678,7 @@
                 </div>
                 
                 <div class="progress-bar-bg">
-                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; margin-top: 25px;">
@@ -692,7 +703,7 @@
                 </p>
                 
                 <div class="month-grid" id="monthGrid">
-                    <!-- Months will be loaded here -->
+                    <!-- Months will be loaded dynamically -->
                 </div>
             </div>
             
@@ -700,7 +711,7 @@
             <div class="table-container">
                 <div class="table-title">
                     <i class="fas fa-list-check"></i>
-                    <span>Daftar Monitoring per Desa</span>
+                    <span>Daftar Monitoring per Desa (Data Real dari Drive)</span>
                 </div>
                 
                 <div class="table-responsive">
@@ -715,7 +726,7 @@
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            <!-- Data will be loaded here -->
+                            <!-- Data will be loaded from Google Drive -->
                         </tbody>
                     </table>
                 </div>
@@ -724,24 +735,27 @@
             <!-- FOOTER -->
             <div class="footer">
                 <div id="updateTime" style="margin-bottom: 15px;">
-                    <i class="fas fa-clock"></i> Terakhir update: Loading...
+                    <i class="fas fa-clock"></i> Terakhir update: <span id="lastUpdateText">Loading...</span>
                 </div>
                 
                 <div class="system-info">
-                    <span id="cacheInfo">
-                        <i class="fas fa-database"></i> Cache: Loading...
+                    <span id="sourceInfo">
+                        <i class="fas fa-server"></i> Source: <span id="sourceText">Loading...</span>
                     </span>
                     <span id="loadTimeInfo">
-                        <i class="fas fa-bolt"></i> Load time: Loading...
+                        <i class="fas fa-bolt"></i> Load time: <span id="loadTimeText">0ms</span>
                     </span>
-                    <span id="dataSourceInfo">
-                        <i class="fas fa-server"></i> Source: Loading...
+                    <span id="dataCountInfo">
+                        <i class="fas fa-database"></i> Data count: <span id="dataCountText">0</span>
                     </span>
                 </div>
                 
                 <div style="margin-top: 25px; padding: 15px; background: rgba(46, 125, 50, 0.05); border-radius: 10px;">
                     <p style="color: var(--primary); font-weight: 600;">
-                        💚💚💚 SISTEM INFORMASI OPERASIONAL BABINSA 💚💚💚
+                        💚💚💚 SISTEM MONITORING REAL-TIME BABINSA 💚💚💚
+                    </p>
+                    <p style="color: var(--gray); font-size: 0.8rem; margin-top: 5px;">
+                        Data diambil langsung dari Google Drive • Auto refresh cache
                     </p>
                 </div>
             </div>
@@ -768,86 +782,108 @@
         // ==================== GLOBAL VARIABLES ====================
         let currentData = null;
         let availableMonths = [];
-        let deferredPrompt = null;
         let isProcessing = false;
+        let deferredPrompt = null;
+        let lastRefreshTime = null;
         
         // ==================== APP INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if PWA is already installed
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                console.log('Running in PWA mode');
-            }
+            console.log('🚀 Sistem Monitoring Babinsa - REAL DATA ONLY');
             
-            // Initialize Service Worker for PWA
+            // Initialize PWA
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
                     .then(registration => {
-                        console.log('ServiceWorker registered:', registration);
+                        console.log('✅ ServiceWorker registered:', registration);
                     })
                     .catch(error => {
-                        console.log('ServiceWorker registration failed:', error);
+                        console.log('⚠️ ServiceWorker registration failed:', error);
                     });
             }
             
-            // Load initial data
-            loadDashboardData();
-            
-            // Setup keyboard shortcuts
-            setupKeyboardShortcuts();
-            
             // Setup PWA install prompt
             setupInstallPrompt();
+            
+            // Load initial data (REAL DATA FROM GOOGLE DRIVE)
+            loadRealData();
+            
+            // Setup auto refresh every 5 minutes
+            setupAutoRefresh();
+            
+            // Setup keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + R = Refresh dengan clear cache
+                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                    e.preventDefault();
+                    refreshData(true);
+                }
+                
+                // F5 = Normal refresh
+                if (e.key === 'F5') {
+                    e.preventDefault();
+                    refreshData();
+                }
+            });
         });
         
         // ==================== DATA LOADING FUNCTIONS ====================
-        function loadDashboardData(year = null, month = null) {
-            if (isProcessing) return;
-            
-            showLoading(true);
-            isProcessing = true;
-            
-            const loadingText = document.getElementById('loadingText');
-            if (year && month) {
-                loadingText.textContent = `Memuat data ${getMonthName(month)} ${year}...`;
-            } else {
-                loadingText.textContent = 'Memuat data bulan terbaru...';
-            }
-            
-            // Disable buttons while loading
-            disableButtons(true);
-            
-            // Simulate API call to Google Apps Script
-            // In production, this would call google.script.run
-            setTimeout(() => {
-                // This is mock data - replace with actual Google Apps Script call
-                const mockData = getMockData(year, month);
-                handleDataResponse(mockData);
-                isProcessing = false;
-                disableButtons(false);
-            }, 1500);
-            
-            // Actual implementation for Google Apps Script:
-            /*
-            google.script.run
-                .withSuccessHandler(handleDataResponse)
-                .withFailureHandler(handleDataError)
-                .getAbsensiData(year, month);
-            */
-        }
-        
-        function handleDataResponse(data) {
-            if (!data || !data.success) {
-                showError('Gagal memuat data dari server');
+        function loadRealData(year = null, month = null, forceRefresh = false) {
+            if (isProcessing) {
+                console.log('⏳ Masih memproses data sebelumnya...');
                 return;
             }
             
+            showLoading(true);
+            isProcessing = true;
+            disableButtons(true);
+            
+            const loadingText = document.getElementById('loadingText');
+            if (year && month) {
+                const monthName = getMonthName(month);
+                loadingText.textContent = `Memuat data real ${monthName} ${year} dari Drive...`;
+            } else {
+                loadingText.textContent = 'Memuat data bulan terbaru dari Drive...';
+            }
+            
+            // Show cache status
+            document.getElementById('cacheStatus').innerHTML = 
+                `<i class="fas fa-database"></i> Status cache: ${forceRefresh ? 'Force refresh...' : 'Checking...'}`;
+            
+            // Prepare parameters
+            let urlParams = '';
+            if (forceRefresh) urlParams += '&force=true';
+            if (year) urlParams += `&tahun=${year}`;
+            if (month) urlParams += `&bulan=${month}`;
+            
+            // Call Google Apps Script for REAL DATA
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    handleRealDataResponse(data, forceRefresh);
+                    isProcessing = false;
+                    disableButtons(false);
+                    lastRefreshTime = new Date();
+                })
+                .withFailureHandler(function(error) {
+                    handleRealDataError(error);
+                    isProcessing = false;
+                    disableButtons(false);
+                })
+                .getAbsensiData(year, month);
+        }
+        
+        function handleRealDataResponse(data, forceRefresh = false) {
+            if (!data) {
+                showError('Tidak ada data yang diterima dari server');
+                return;
+            }
+            
+            if (!data.success && data.error) {
+                showError(`Error dari server: ${data.error}`);
+                return;
+            }
+            
+            // Update global variables
             currentData = data;
-            
-            // Update UI with data
-            updateDashboardUI(data);
-            
-            // Show dashboard, hide loading
-            showLoading(false);
             
             // Update available months if present
             if (data.available_months && Array.isArray(data.available_months)) {
@@ -855,35 +891,152 @@
                 updateMonthSelector();
             }
             
-            // Show success notification
-            showNotification('✅ Data berhasil dimuat!', 'success');
+            // Update UI with REAL data
+            updateDashboardWithRealData(data);
+            
+            // Show dashboard, hide loading
+            showLoading(false);
+            
+            // Show notification
+            const notificationMsg = forceRefresh ? 
+                '✅ Data berhasil di-refresh & cache dibersihkan!' : 
+                '✅ Data real berhasil dimuat dari Drive!';
+            
+            showNotification(notificationMsg, 'success');
+            
+            // Update last refresh time
+            if (lastRefreshTime) {
+                const timeStr = lastRefreshTime.toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                document.getElementById('cacheStatus').innerHTML = 
+                    `<i class="fas fa-history"></i> Terakhir refresh: ${timeStr}`;
+            }
         }
         
-        function handleDataError(error) {
-            console.error('Error loading data:', error);
-            showError(`Gagal memuat data: ${error.message || 'Unknown error'}`);
-            isProcessing = false;
-            disableButtons(false);
+        function handleRealDataError(error) {
+            console.error('❌ Error loading real data:', error);
+            
+            const errorMsg = error.message || 'Tidak dapat terhubung ke Google Apps Script';
+            
+            showNotification(`❌ ${errorMsg}`, 'error');
+            
+            // Show detailed error in loading screen
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.innerHTML = `
+                <div style="text-align: center; padding: 30px;">
+                    <div style="color: var(--danger); font-size: 4rem; margin-bottom: 20px;">
+                        <i class="fas fa-unlink"></i>
+                    </div>
+                    <h2 style="color: var(--danger); margin-bottom: 15px;">GAGAL TERHUBUNG</h2>
+                    <p style="color: var(--gray); margin-bottom: 25px;">
+                        Tidak dapat mengambil data dari Google Drive
+                    </p>
+                    
+                    <div style="background: rgba(244, 67, 54, 0.05); padding: 20px; border-radius: 10px; 
+                        border-left: 4px solid var(--danger); margin: 20px 0; text-align: left;">
+                        <p style="font-weight: 600; color: var(--danger);">
+                            <i class="fas fa-exclamation-triangle"></i> Detail Error:
+                        </p>
+                        <pre style="background: white; padding: 15px; border-radius: 8px; 
+                            overflow-x: auto; font-size: 0.85rem; margin-top: 10px;">
+${error.toString()}
+                        </pre>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <button onclick="loadRealData()" style="
+                            background: var(--primary); color: white; padding: 15px 30px; 
+                            border: none; border-radius: 8px; cursor: pointer; 
+                            font-weight: 600; margin: 10px;">
+                            <i class="fas fa-redo"></i> Coba Lagi
+                        </button>
+                        <button onclick="window.open('https://script.google.com/home', '_blank')" style="
+                            background: var(--secondary); color: white; padding: 15px 30px; 
+                            border: none; border-radius: 8px; cursor: pointer; 
+                            font-weight: 600; margin: 10px;">
+                            <i class="fab fa-google"></i> Buka Apps Script
+                        </button>
+                    </div>
+                </div>
+            `;
         }
         
-        function refreshData() {
+        function refreshData(forceClearCache = false) {
             if (isProcessing) {
-                showNotification('Sedang memuat data...', 'info');
+                showNotification('⏳ Masih memproses...', 'info');
                 return;
             }
             
-            const year = currentData?.tahun || null;
-            const month = currentData?.bulan_kode || null;
+            if (forceClearCache) {
+                showNotification('🔄 Memuat ulang data & membersihkan cache...', 'info');
+                
+                // Call clear cache first, then refresh
+                google.script.run
+                    .withSuccessHandler(function(result) {
+                        if (result.success) {
+                            console.log('✅ Cache cleared:', result.message);
+                            // Now load fresh data
+                            if (currentData) {
+                                loadRealData(currentData.tahun, currentData.bulan_kode, true);
+                            } else {
+                                loadRealData(null, null, true);
+                            }
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        console.error('❌ Error clearing cache:', error);
+                        // Still try to load data
+                        if (currentData) {
+                            loadRealData(currentData.tahun, currentData.bulan_kode, true);
+                        } else {
+                            loadRealData(null, null, true);
+                        }
+                    })
+                    .clearAllCache();
+            } else {
+                showNotification('🔄 Memuat ulang data...', 'info');
+                if (currentData) {
+                    loadRealData(currentData.tahun, currentData.bulan_kode);
+                } else {
+                    loadRealData();
+                }
+            }
+        }
+        
+        function clearCache() {
+            showNotification('🧹 Membersihkan cache...', 'info');
             
-            loadDashboardData(year, month);
-            showNotification('🔄 Memuat ulang data...', 'info');
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        showNotification('✅ Cache berhasil dibersihkan!', 'success');
+                        // Refresh data after clearing cache
+                        setTimeout(() => {
+                            if (currentData) {
+                                loadRealData(currentData.tahun, currentData.bulan_kode, true);
+                            } else {
+                                loadRealData(null, null, true);
+                            }
+                        }, 1000);
+                    } else {
+                        showNotification(`❌ ${result.error}`, 'error');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    showNotification(`❌ Error: ${error.message}`, 'error');
+                })
+                .clearAllCache();
         }
         
         // ==================== UI UPDATE FUNCTIONS ====================
-        function updateDashboardUI(data) {
-            // Update period title
+        function updateDashboardWithRealData(data) {
+            if (!data) return;
+            
+            // Update period info
             document.getElementById('periodTitle').textContent = 
-                data.judul || `ABSENSI DUKOPS BABINSA - ${data.bulan} ${data.tahun}`;
+                data.judul || `💚 ABSENSI DUKOPS BABINSA - ${data.bulan} ${data.tahun}`;
             
             document.getElementById('periodInfo').textContent = 
                 `Periode: ${data.bulan} ${data.tahun} | Update: ${formatDateTime(data.lastUpdate)}`;
@@ -903,30 +1056,27 @@
             document.getElementById('sudahUpload').textContent = summary.total_sudah || 0;
             document.getElementById('totalTarget').textContent = summary.total || 0;
             
-            // Update table
-            updateDataTable(data.babinsaList || []);
+            // Update table with REAL data
+            updateDataTableWithRealData(data.babinsaList || []);
             
             // Update footer info
-            document.getElementById('updateTime').innerHTML = 
-                `<i class="fas fa-clock"></i> Terakhir update: ${formatDateTime(data.lastUpdate)}`;
+            document.getElementById('lastUpdateText').textContent = formatDateTime(data.lastUpdate);
+            document.getElementById('sourceText').textContent = data.source || 'unknown';
+            document.getElementById('loadTimeText').textContent = data.load_time ? `${data.load_time}ms` : '0ms';
+            document.getElementById('dataCountText').textContent = data.babinsaList ? data.babinsaList.length : 0;
             
+            // Update cache status
             if (data.cache_hit !== undefined) {
-                document.getElementById('cacheInfo').innerHTML = 
-                    `<i class="fas fa-database"></i> Cache: ${data.cache_hit ? 'HIT' : 'MISS'}`;
-            }
-            
-            if (data.load_time !== undefined) {
-                document.getElementById('loadTimeInfo').innerHTML = 
-                    `<i class="fas fa-bolt"></i> Load time: ${data.load_time}ms`;
-            }
-            
-            if (data.source) {
-                document.getElementById('dataSourceInfo').innerHTML = 
-                    `<i class="fas fa-server"></i> Source: ${data.source}`;
+                const cacheStatus = data.cache_hit ? 
+                    `<span style="color: var(--success);">HIT (cached)</span>` : 
+                    `<span style="color: var(--danger);">MISS (fresh)</span>`;
+                
+                document.getElementById('cacheStatus').innerHTML = 
+                    `<i class="fas fa-database"></i> Status cache: ${cacheStatus}`;
             }
         }
         
-        function updateDataTable(babinsaList) {
+        function updateDataTableWithRealData(babinsaList) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             
@@ -934,7 +1084,9 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-info-circle"></i> Tidak ada data tersedia
+                            <div style="font-size: 3rem; margin-bottom: 15px;">📁</div>
+                            <h3 style="color: var(--dark); margin-bottom: 10px;">Tidak Ada Data</h3>
+                            <p>Drive kosong atau tidak ada folder desa yang ditemukan</p>
                         </td>
                     </tr>
                 `;
@@ -970,18 +1122,23 @@
                 
                 const desaName = item.nama.replace('Babinsa ', '');
                 const progressPercent = item.persentase_upload || 0;
+                const hasFolder = item.folder_exists ? 'Ya' : 'Tidak';
                 
                 row.innerHTML = `
-                    <td style="font-weight: 600; color: var(--dark);">${index + 1}</td>
+                    <td style="font-weight: 600; color: var(--dark); text-align: center;">
+                        ${index + 1}
+                    </td>
                     <td>
                         <div style="font-weight: 600; color: var(--dark);">${desaName}</div>
-                        <div style="font-size: 0.85rem; color: var(--gray);">Babinsa</div>
+                        <div style="font-size: 0.85rem; color: var(--gray);">
+                            Babinsa • Folder: ${hasFolder}
+                        </div>
                     </td>
                     <td>
                         <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary);">
                             ${item.file_count}/${item.target}
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--gray);">file ZIP</div>
+                        <div style="font-size: 0.85rem; color: var(--gray);">file ZIP ditemukan</div>
                     </td>
                     <td>
                         <span class="status-badge ${statusClass}">
@@ -1013,22 +1170,23 @@
             
             monthGrid.innerHTML = '';
             
-            if (availableMonths.length === 0) {
+            if (!availableMonths || availableMonths.length === 0) {
                 monthGrid.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--gray);">
                         <i class="fas fa-calendar-times"></i><br>
-                        Tidak ada data bulan sebelumnya
+                        Tidak ada data bulan sebelumnya di Drive
                     </div>
                 `;
                 return;
             }
             
-            // Show only last 12 months
+            // Show available months (max 12)
             const monthsToShow = availableMonths.slice(0, 12);
             
             monthsToShow.forEach(month => {
                 const button = document.createElement('button');
                 button.className = 'month-btn';
+                button.type = 'button';
                 
                 // Check if this is current month
                 if (currentData && 
@@ -1058,8 +1216,10 @@
             // Add active class to clicked button
             if (button) button.classList.add('active');
             
-            // Load data for selected month
-            loadDashboardData(year, month);
+            // Load REAL data for selected month
+            loadRealData(year, month);
+            
+            showNotification(`📅 Memuat data ${getMonthName(month)} ${year}...`, 'info');
         }
         
         // ==================== ACTION FUNCTIONS ====================
@@ -1071,37 +1231,22 @@
             
             showNotification('📤 Mengirim laporan ke Telegram...', 'info');
             
-            // Simulate Telegram sending
-            setTimeout(() => {
-                const success = Math.random() > 0.2; // 80% success rate for demo
-                
-                if (success) {
-                    showNotification(
-                        `✅ Laporan ${currentData.bulan} ${currentData.tahun} berhasil dikirim ke Telegram!`,
-                        'success'
-                    );
-                } else {
-                    showNotification(
-                        '❌ Gagal mengirim ke Telegram. Coba lagi nanti.',
-                        'error'
-                    );
-                }
-                
-                isProcessing = false;
-                disableButtons(false);
-            }, 2000);
-            
-            // Actual implementation:
-            /*
             google.script.run
-                .withSuccessHandler(result => {
-                    showNotification(result.message, result.success ? 'success' : 'error');
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        showNotification(`✅ ${result.message}`, 'success');
+                    } else {
+                        showNotification(`❌ ${result.error || 'Gagal mengirim'}`, 'error');
+                    }
+                    isProcessing = false;
+                    disableButtons(false);
                 })
-                .withFailureHandler(error => {
-                    showNotification(`Error: ${error.message}`, 'error');
+                .withFailureHandler(function(error) {
+                    showNotification(`❌ Error: ${error.message}`, 'error');
+                    isProcessing = false;
+                    disableButtons(false);
                 })
                 .kirimLaporanTXT(currentData.tahun, currentData.bulan_kode);
-            */
         }
         
         function generateWhatsAppReport() {
@@ -1110,65 +1255,40 @@
             isProcessing = true;
             showNotification('📝 Membuat laporan WhatsApp...', 'info');
             
-            // Generate report text
-            const report = generateReportText(currentData);
-            
-            // Copy to clipboard
-            copyToClipboard(report);
-            
-            setTimeout(() => {
-                showNotification(
-                    `📋 Laporan WhatsApp disalin ke clipboard!<br>
-                    <small>Paste ke WhatsApp untuk dikirim</small>`,
-                    'success'
-                );
-                
-                // Show preview
-                const preview = report.length > 150 ? report.substring(0, 150) + '...' : report;
-                alert(
-                    `📱 LAPORAN WHATSAPP TELAH DISALIN!\n\n` +
-                    `Silakan paste di aplikasi WhatsApp.\n\n` +
-                    `Preview:\n${preview}\n\n` +
-                    `Karakter: ${report.length}\n` +
-                    `Periode: ${currentData.bulan} ${currentData.tahun}`
-                );
-                
-                isProcessing = false;
-            }, 1000);
-        }
-        
-        function generateReportText(data) {
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
-                          now.getMinutes().toString().padStart(2, '0');
-            
-            let report = `📋 *LAPORAN ABSENSI BABINSA*\n`;
-            report += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-            report += `📅 *Periode:* ${data.bulan} ${data.tahun}\n`;
-            report += `🕒 *Update:* ${timeStr}\n\n`;
-            report += `📊 *STATISTIK:*\n`;
-            report += `• Total Desa: ${data.summary.total}\n`;
-            report += `• Sudah Upload: ${data.summary.total_sudah} (${data.summary.persentase}%)\n`;
-            report += `  ✅ Lengkap: ${data.summary.sudah_lengkap}\n`;
-            report += `  ⚠️ Belum Lengkap: ${data.summary.belum_lengkap}\n`;
-            report += `• Belum Upload: ${data.summary.belum}\n\n`;
-            report += `📋 *DETAIL:*\n`;
-            
-            data.babinsaList.slice(0, 5).forEach((item, index) => {
-                const desa = item.nama.replace('Babinsa ', '');
-                const icon = item.status === 'lengkap' ? '✅' : 
-                            item.status === 'belum_lengkap' ? '⚠️' : '❌';
-                report += `${index + 1}. ${desa}: ${item.file_count}/${item.target} ${icon}\n`;
-            });
-            
-            if (data.babinsaList.length > 5) {
-                report += `... dan ${data.babinsaList.length - 5} desa lainnya\n`;
-            }
-            
-            report += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-            report += `Sistem Monitoring Babinsa\n`;
-            
-            return report;
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        const report = result.data.report;
+                        copyToClipboard(report);
+                        
+                        showNotification(
+                            `📋 Laporan WhatsApp disalin ke clipboard!<br>
+                            <small>Paste ke WhatsApp untuk dikirim</small>`,
+                            'success'
+                        );
+                        
+                        // Show preview
+                        setTimeout(() => {
+                            const preview = report.length > 150 ? 
+                                report.substring(0, 150) + '...' : report;
+                            alert(
+                                `📱 LAPORAN WHATSAPP TELAH DISALIN!\n\n` +
+                                `Periode: ${result.data.bulan} ${result.data.tahun}\n` +
+                                `Karakter: ${result.data.karakter}\n\n` +
+                                `Preview:\n${preview}\n\n` +
+                                `Silakan paste di aplikasi WhatsApp.`
+                            );
+                        }, 500);
+                    } else {
+                        showNotification(`❌ ${result.error}`, 'error');
+                    }
+                    isProcessing = false;
+                })
+                .withFailureHandler(function(error) {
+                    showNotification(`❌ Error: ${error.message}`, 'error');
+                    isProcessing = false;
+                })
+                .kirimWhatsAppReport(currentData.tahun, currentData.bulan_kode);
         }
         
         // ==================== UTILITY FUNCTIONS ====================
@@ -1191,7 +1311,7 @@
             notification.className = `notification ${type}`;
             notification.style.display = 'block';
             
-            // Auto hide after 5 seconds
+            // Auto hide
             setTimeout(() => {
                 notification.style.display = 'none';
             }, 5000);
@@ -1200,32 +1320,33 @@
         function showError(message) {
             const loading = document.getElementById('loading');
             loading.innerHTML = `
-                <div style="color: var(--danger); margin-bottom: 20px; font-size: 1.5rem;">
-                    <i class="fas fa-exclamation-triangle"></i> TERJADI KESALAHAN
-                </div>
-                <div style="background: rgba(244, 67, 54, 0.1); padding: 20px; border-radius: 10px; 
-                    border-left: 4px solid var(--danger); margin-bottom: 30px;">
-                    <p style="color: var(--danger); margin: 0; font-weight: 600;">${message}</p>
-                </div>
-                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                    <button onclick="location.reload()" style="
-                        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-                        color: white; padding: 15px 30px; border: none; border-radius: 8px; 
-                        cursor: pointer; font-weight: 600; font-size: 1rem;">
-                        <i class="fas fa-sync-alt"></i> Refresh Halaman
-                    </button>
-                    <button onclick="loadDashboardData()" style="
-                        background: linear-gradient(135deg, var(--secondary) 0%, #1976d2 100%);
-                        color: white; padding: 15px 30px; border: none; border-radius: 8px; 
-                        cursor: pointer; font-weight: 600; font-size: 1rem;">
-                        <i class="fas fa-home"></i> Kembali ke Dashboard
-                    </button>
+                <div style="text-align: center; padding: 40px;">
+                    <div style="color: var(--danger); font-size: 3rem; margin-bottom: 20px;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h2 style="color: var(--danger); margin-bottom: 15px;">ERROR</h2>
+                    <div style="background: rgba(244, 67, 54, 0.1); padding: 20px; border-radius: 10px; 
+                        border-left: 4px solid var(--danger); margin-bottom: 30px;">
+                        <p style="color: var(--danger); margin: 0; font-weight: 600;">${message}</p>
+                    </div>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="loadRealData()" style="
+                            background: var(--primary); color: white; padding: 15px 30px; 
+                            border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-redo"></i> Coba Lagi
+                        </button>
+                        <button onclick="refreshData(true)" style="
+                            background: var(--warning); color: white; padding: 15px 30px; 
+                            border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-sync-alt"></i> Refresh & Clear Cache
+                        </button>
+                    </div>
                 </div>
             `;
         }
         
         function disableButtons(disable) {
-            const buttons = ['refreshBtn', 'telegramBtn', 'whatsappBtn'];
+            const buttons = ['refreshBtn', 'telegramBtn', 'whatsappBtn', 'clearBtn'];
             buttons.forEach(id => {
                 const btn = document.getElementById(id);
                 if (btn) btn.disabled = disable;
@@ -1243,14 +1364,19 @@
         
         function formatDateTime(isoString) {
             if (!isoString) return '-';
-            const date = new Date(isoString);
-            return date.toLocaleString('id-ID', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            try {
+                const date = new Date(isoString);
+                return date.toLocaleString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            } catch(e) {
+                return isoString;
+            }
         }
         
         function getMonthName(monthCode) {
@@ -1277,43 +1403,45 @@
             return 'var(--danger)';
         }
         
-        function setupKeyboardShortcuts() {
-            document.addEventListener('keydown', (e) => {
-                // Ctrl/Cmd + R = Refresh
-                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                    e.preventDefault();
-                    refreshData();
+        function setupAutoRefresh() {
+            // Auto refresh every 5 minutes (300000 ms)
+            setInterval(() => {
+                if (!isProcessing && document.visibilityState === 'visible') {
+                    console.log('🔄 Auto-refresh data...');
+                    if (currentData) {
+                        loadRealData(currentData.tahun, currentData.bulan_kode);
+                    }
                 }
-                
-                // F5 = Refresh
-                if (e.key === 'F5') {
-                    e.preventDefault();
-                    refreshData();
-                }
-                
-                // Escape = Close notifications
-                if (e.key === 'Escape') {
-                    document.getElementById('notification').style.display = 'none';
+            }, 300000); // 5 minutes
+            
+            // Refresh when tab becomes visible
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    // Refresh if data is older than 2 minutes
+                    if (lastRefreshTime && (new Date() - lastRefreshTime) > 120000) {
+                        console.log('📱 Tab aktif kembali, refresh data...');
+                        if (currentData) {
+                            loadRealData(currentData.tahun, currentData.bulan_kode);
+                        }
+                    }
                 }
             });
         }
         
         function setupInstallPrompt() {
-            // Listen for beforeinstallprompt event
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
                 
-                // Show install prompt after 3 seconds
+                // Show install prompt after 5 seconds
                 setTimeout(() => {
                     const installPrompt = document.getElementById('installPrompt');
-                    if (installPrompt && deferredPrompt) {
+                    if (installPrompt && deferredPrompt && !isPWAInstalled()) {
                         installPrompt.style.display = 'flex';
                     }
-                }, 3000);
+                }, 5000);
             });
             
-            // Handle install button click
             document.getElementById('installBtn').addEventListener('click', async () => {
                 if (!deferredPrompt) return;
                 
@@ -1330,92 +1458,17 @@
                 deferredPrompt = null;
             });
             
-            // Hide install prompt when app is already installed
             window.addEventListener('appinstalled', () => {
                 document.getElementById('installPrompt').style.display = 'none';
                 deferredPrompt = null;
+                showNotification('🎉 Aplikasi siap digunakan!', 'success');
             });
         }
         
-        // ==================== MOCK DATA FOR DEMO ====================
-        function getMockData(year, month) {
-            const now = new Date();
-            const mockYear = year || now.getFullYear().toString();
-            const mockMonth = month || String(now.getMonth() + 1).padStart(2, '0');
-            const monthName = getMonthName(mockMonth);
-            
-            // Generate mock babinsa data
-            const desaList = [
-                "AMBENGAN", "PEGAYAMAN", "GITGIT", "TEGALLINGGAH", "PANJI",
-                "SUKASADA", "WANAGIRI", "SELAT", "KAYU PUTIH", "PADANG BULIA",
-                "PANCASARI", "SILANGJANA", "PANJI ANOM", "PEGADUNGAN", "SAMBANGAN"
-            ];
-            
-            const babinsaList = desaList.map((desa, index) => {
-                let fileCount;
-                let status;
-                
-                // Randomize for demo
-                const rand = Math.random();
-                if (rand < 0.4) {
-                    fileCount = 9;
-                    status = 'lengkap';
-                } else if (rand < 0.7) {
-                    fileCount = Math.floor(Math.random() * 8) + 1;
-                    status = 'belum_lengkap';
-                } else {
-                    fileCount = 0;
-                    status = 'belum';
-                }
-                
-                return {
-                    id: index + 1,
-                    nama: `Babinsa ${desa}`,
-                    status: status,
-                    monitoring_status: status.toUpperCase(),
-                    file_count: fileCount,
-                    target: 9,
-                    persentase_upload: Math.round((fileCount / 9) * 100),
-                    folder_exists: fileCount > 0
-                };
-            });
-            
-            // Calculate summary
-            const summary = {
-                total: babinsaList.length,
-                sudah_lengkap: babinsaList.filter(b => b.status === 'lengkap').length,
-                belum_lengkap: babinsaList.filter(b => b.status === 'belum_lengkap').length,
-                belum: babinsaList.filter(b => b.status === 'belum').length,
-                total_sudah: babinsaList.filter(b => b.file_count > 0).length,
-                persentase: Math.round((babinsaList.filter(b => b.file_count > 0).length / babinsaList.length) * 100)
-            };
-            
-            // Generate available months
-            const availableMonths = [];
-            for (let i = 0; i < 6; i++) {
-                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                availableMonths.push({
-                    tahun: date.getFullYear().toString(),
-                    bulan: String(date.getMonth() + 1).padStart(2, '0'),
-                    nama_bulan: getMonthName(String(date.getMonth() + 1).padStart(2, '0')),
-                    nama_bulan_asli: getMonthName(String(date.getMonth() + 1).padStart(2, '0'))
-                });
-            }
-            
-            return {
-                success: true,
-                judul: `💚 ABSENSI DUKOPS BABINSA - ${monthName.toUpperCase()} ${mockYear}`,
-                bulan: monthName,
-                tahun: mockYear,
-                bulan_kode: mockMonth,
-                lastUpdate: now.toISOString(),
-                babinsaList: babinsaList,
-                summary: summary,
-                available_months: availableMonths,
-                cache_hit: false,
-                load_time: 1250,
-                source: 'mock_data'
-            };
+        function isPWAInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone ||
+                   document.referrer.includes('android-app://');
         }
     </script>
 </body>
