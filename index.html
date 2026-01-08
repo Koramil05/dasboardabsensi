@@ -9,7 +9,7 @@
     
     <title>💚 MONITORING ABSENSI BABINSA</title>
     
-    <!-- PWA -->
+    <!-- PWA Configuration -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -21,7 +21,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== RESET & BASE ===== */
+        /* ===== RESET & BASE STYLES ===== */
         * {
             margin: 0;
             padding: 0;
@@ -103,7 +103,7 @@
             z-index: 2;
         }
         
-        /* ===== LOADING ===== */
+        /* ===== LOADING SCREEN ===== */
         .loading-container {
             background: white;
             border-radius: var(--radius);
@@ -134,7 +134,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* ===== DASHBOARD ===== */
+        /* ===== DASHBOARD CONTENT ===== */
         .dashboard {
             display: none;
             animation: fadeIn 0.8s ease;
@@ -195,7 +195,7 @@
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); 
         }
         
-        /* ===== PERIOD INFO ===== */
+        /* ===== PERIOD CARD ===== */
         .period-card {
             background: white;
             border-radius: var(--radius);
@@ -218,7 +218,7 @@
             font-size: 1rem;
         }
         
-        /* ===== STATS GRID ===== */
+        /* ===== STATISTICS GRID ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -233,6 +233,7 @@
             text-align: center;
             box-shadow: var(--shadow);
             transition: transform 0.3s ease;
+            border-top: 5px solid var(--primary);
         }
         
         .stat-card:hover {
@@ -256,10 +257,10 @@
             font-size: 0.9rem;
         }
         
-        .stat-total { border-top: 5px solid var(--primary); }
-        .stat-lengkap { border-top: 5px solid var(--success); }
-        .stat-kurang { border-top: 5px solid var(--warning); }
-        .stat-belum { border-top: 5px solid var(--danger); }
+        .stat-total { border-top-color: var(--primary); }
+        .stat-lengkap { border-top-color: var(--success); }
+        .stat-kurang { border-top-color: var(--warning); }
+        .stat-belum { border-top-color: var(--danger); }
         
         /* ===== PROGRESS BAR ===== */
         .progress-container {
@@ -439,7 +440,7 @@
             border: 1px solid rgba(244, 67, 54, 0.3);
         }
         
-        /* ===== MINI PROGRESS ===== */
+        /* ===== MINI PROGRESS BAR ===== */
         .mini-progress {
             background: var(--light);
             height: 10px;
@@ -548,7 +549,7 @@
             font-size: 0.85rem;
         }
         
-        /* ===== RESPONSIVE ===== */
+        /* ===== RESPONSIVE DESIGN ===== */
         @media (max-width: 768px) {
             .header { padding: 20px 15px; }
             .app-title { font-size: 1.5rem; }
@@ -566,15 +567,6 @@
             .action-btn { min-height: 80px; padding: 15px 10px; }
             .period-title { font-size: 1.3rem; }
         }
-        
-        /* ===== PRINT STYLES ===== */
-        @media print {
-            body { background: white !important; }
-            .header, .action-grid, .install-prompt, 
-            .notification, .month-selector { display: none !important; }
-            .container { max-width: 100%; padding: 0; }
-            .stat-card, .table-container { box-shadow: none !important; }
-        }
     </style>
 </head>
 <body>
@@ -589,7 +581,7 @@
             </p>
         </div>
         
-        <!-- LOADING STATE -->
+        <!-- LOADING SCREEN -->
         <div id="loading" class="loading-container">
             <div class="spinner"></div>
             <h2 style="color: var(--primary); margin-bottom: 15px;">MEMUAT DATA REAL...</h2>
@@ -598,7 +590,7 @@
             </p>
             <div style="margin-top: 30px; padding: 20px; background: rgba(46, 125, 50, 0.05); border-radius: 10px;">
                 <p style="font-size: 0.9rem; color: var(--primary);">
-                    <i class="fas fa-info-circle"></i> Mengambil data langsung dari Google Drive Anda
+                    <i class="fas fa-info-circle"></i> Mengambil data langsung dari Google Drive
                 </p>
             </div>
         </div>
@@ -788,7 +780,7 @@
         
         // ==================== APP INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Sistem Monitoring Babinsa - REAL DATA ONLY');
+            console.log('🚀 Sistem Monitoring Babinsa - INTEGRASI LENGKAP');
             
             // Initialize PWA
             if ('serviceWorker' in navigator) {
@@ -804,7 +796,7 @@
             // Setup PWA install prompt
             setupInstallPrompt();
             
-            // Load initial data (REAL DATA FROM GOOGLE DRIVE)
+            // Load initial data dari Google Apps Script
             loadRealData();
             
             // Setup auto refresh every 5 minutes
@@ -849,13 +841,14 @@
             document.getElementById('cacheStatus').innerHTML = 
                 `<i class="fas fa-database"></i> Status cache: ${forceRefresh ? 'Force refresh...' : 'Checking...'}`;
             
-            // Prepare parameters
+            // Prepare parameters untuk Google Apps Script
             let urlParams = '';
             if (forceRefresh) urlParams += '&force=true';
             if (year) urlParams += `&tahun=${year}`;
             if (month) urlParams += `&bulan=${month}`;
             
-            // Call Google Apps Script for REAL DATA
+            // Call Google Apps Script untuk REAL DATA
+            // TIDAK ADA MOCK DATA - SEMUA DATA REAL DARI DRIVE
             google.script.run
                 .withSuccessHandler(function(data) {
                     handleRealDataResponse(data, forceRefresh);
@@ -882,16 +875,16 @@
                 return;
             }
             
-            // Update global variables
+            // Update global variables dengan data REAL
             currentData = data;
             
-            // Update available months if present
+            // Update available months jika ada
             if (data.available_months && Array.isArray(data.available_months)) {
                 availableMonths = data.available_months;
                 updateMonthSelector();
             }
             
-            // Update UI with REAL data
+            // Update UI dengan data REAL dari Drive
             updateDashboardWithRealData(data);
             
             // Show dashboard, hide loading
@@ -929,7 +922,7 @@
                     <div style="color: var(--danger); font-size: 4rem; margin-bottom: 20px;">
                         <i class="fas fa-unlink"></i>
                     </div>
-                    <h2 style="color: var(--danger); margin-bottom: 15px;">GAGAL TERHUBUNG</h2>
+                    <h2 style="color: var(--danger); margin-bottom: 15px;">GAGAL TERHUBUNG KE DRIVE</h2>
                     <p style="color: var(--gray); margin-bottom: 25px;">
                         Tidak dapat mengambil data dari Google Drive
                     </p>
@@ -937,12 +930,14 @@
                     <div style="background: rgba(244, 67, 54, 0.05); padding: 20px; border-radius: 10px; 
                         border-left: 4px solid var(--danger); margin: 20px 0; text-align: left;">
                         <p style="font-weight: 600; color: var(--danger);">
-                            <i class="fas fa-exclamation-triangle"></i> Detail Error:
+                            <i class="fas fa-exclamation-triangle"></i> Kemungkinan penyebab:
                         </p>
-                        <pre style="background: white; padding: 15px; border-radius: 8px; 
-                            overflow-x: auto; font-size: 0.85rem; margin-top: 10px;">
-${error.toString()}
-                        </pre>
+                        <ul style="color: var(--gray); padding-left: 20px; margin-top: 10px;">
+                            <li>Anda belum login dengan akun Google yang benar</li>
+                            <li>Skrip belum di-deploy sebagai Web App</li>
+                            <li>Akses belum diatur ke "Anyone" atau "Anyone with Google account"</li>
+                            <li>Folder Drive tidak ditemukan</li>
+                        </ul>
                     </div>
                     
                     <div style="margin-top: 30px;">
@@ -1012,7 +1007,7 @@ ${error.toString()}
                 .withSuccessHandler(function(result) {
                     if (result.success) {
                         showNotification('✅ Cache berhasil dibersihkan!', 'success');
-                        // Refresh data after clearing cache
+                        // Refresh data setelah clearing cache
                         setTimeout(() => {
                             if (currentData) {
                                 loadRealData(currentData.tahun, currentData.bulan_kode, true);
@@ -1056,7 +1051,7 @@ ${error.toString()}
             document.getElementById('sudahUpload').textContent = summary.total_sudah || 0;
             document.getElementById('totalTarget').textContent = summary.total || 0;
             
-            // Update table with REAL data
+            // Update table dengan data REAL dari Drive
             updateDataTableWithRealData(data.babinsaList || []);
             
             // Update footer info
@@ -1085,8 +1080,15 @@ ${error.toString()}
                     <tr>
                         <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
                             <div style="font-size: 3rem; margin-bottom: 15px;">📁</div>
-                            <h3 style="color: var(--dark); margin-bottom: 10px;">Tidak Ada Data</h3>
+                            <h3 style="color: var(--dark); margin-bottom: 10px;">Tidak Ada Data di Drive</h3>
                             <p>Drive kosong atau tidak ada folder desa yang ditemukan</p>
+                            <p style="font-size: 0.9rem; margin-top: 10px;">
+                                Pastikan folder dengan ID:<br>
+                                <code style="background: #f8f9fa; padding: 5px; border-radius: 4px;">
+                                    1fZBe0ICQEmcIx2dIpsiOCZIMmkbZIkVQ
+                                </code><br>
+                                sudah memiliki struktur yang benar
+                            </p>
                         </td>
                     </tr>
                 `;
@@ -1102,7 +1104,7 @@ ${error.toString()}
             sortedList.forEach((item, index) => {
                 const row = document.createElement('tr');
                 
-                // Determine status
+                // Determine status berdasarkan data REAL dari Drive
                 let statusClass = 'status-belum';
                 let statusIcon = '❌';
                 let statusText = 'BELUM';
@@ -1324,7 +1326,7 @@ ${error.toString()}
                     <div style="color: var(--danger); font-size: 3rem; margin-bottom: 20px;">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <h2 style="color: var(--danger); margin-bottom: 15px;">ERROR</h2>
+                    <h2 style="color: var(--danger); margin-bottom: 15px;">ERROR LOADING DATA</h2>
                     <div style="background: rgba(244, 67, 54, 0.1); padding: 20px; border-radius: 10px; 
                         border-left: 4px solid var(--danger); margin-bottom: 30px;">
                         <p style="color: var(--danger); margin: 0; font-weight: 600;">${message}</p>
@@ -1407,7 +1409,7 @@ ${error.toString()}
             // Auto refresh every 5 minutes (300000 ms)
             setInterval(() => {
                 if (!isProcessing && document.visibilityState === 'visible') {
-                    console.log('🔄 Auto-refresh data...');
+                    console.log('🔄 Auto-refresh data dari Drive...');
                     if (currentData) {
                         loadRealData(currentData.tahun, currentData.bulan_kode);
                     }
@@ -1419,7 +1421,7 @@ ${error.toString()}
                 if (document.visibilityState === 'visible') {
                     // Refresh if data is older than 2 minutes
                     if (lastRefreshTime && (new Date() - lastRefreshTime) > 120000) {
-                        console.log('📱 Tab aktif kembali, refresh data...');
+                        console.log('📱 Tab aktif kembali, refresh data dari Drive...');
                         if (currentData) {
                             loadRealData(currentData.tahun, currentData.bulan_kode);
                         }

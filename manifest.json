@@ -1,7 +1,7 @@
 {
   "name": "Monitoring Absensi Babinsa",
   "short_name": "Babinsa Monitor",
-  "description": "Sistem Monitoring Absensi Dukops Babinsa - Real Data",
+  "description": "Sistem Monitoring Absensi Dukops Babinsa - Real Data dari Google Drive",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#2e7d32",
